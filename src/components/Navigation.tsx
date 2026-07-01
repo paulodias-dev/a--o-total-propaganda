@@ -94,7 +94,7 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
             className="flex items-center cursor-pointer focus:outline-none"
             id="nav-logo"
           >
-            <Logo size="sm" showSubtitle={false} />
+            <Logo size="md" showSubtitle={false} className="origin-left scale-[0.9] md:scale-100" />
           </button>
 
           {/* Center Links (Desktop) */}
