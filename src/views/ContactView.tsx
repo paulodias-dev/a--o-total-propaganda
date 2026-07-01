@@ -9,7 +9,7 @@ import {
   HelpCircle,
   ChevronDown,
   MessageCircle,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 
 interface FAQItem {
@@ -22,7 +22,8 @@ export default function ContactView() {
     nome: "",
     telefone: "",
     segmento: "",
-    mensagem: ""
+    cidade: "",
+    mensagem: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -36,137 +37,123 @@ export default function ContactView() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.nome || !formData.telefone) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 1200);
-  };
-
   const getWhatsappLink = () => {
-    const text = `Olá! Me chamo *${formData.nome}*.\n` +
-      `📞 Telefone: *${formData.telefone}*\n` +
-      `🏢 Segmento: *${formData.segmento || "Não informado"}*\n` +
-      `📝 Mensagem: ${formData.mensagem || "Gostaria de solicitar um orçamento para alavancar minha empresa com a Ação Total!"}`;
+    const text = `Olá! Vi o site da Ação Total e quero atendimento comercial.\n\n` +
+      `Nome: ${formData.nome}\n` +
+      `WhatsApp: ${formData.telefone}\n` +
+      `Cidade: ${formData.cidade || "Não informado"}\n` +
+      `Segmento: ${formData.segmento || "Não informado"}\n` +
+      `Mensagem: ${formData.mensagem || "Quero divulgar minha empresa e receber uma sugestão de campanha."}`;
     return `https://wa.me/${rawPhone}?text=${encodeURIComponent(text)}`;
   };
 
+  const persistLeadLocally = () => {
+    const lead = {
+      ...formData,
+      origem: "pagina-contato",
+      criadoEm: new Date().toISOString(),
+    };
+
+    try {
+      const currentLeads = JSON.parse(localStorage.getItem("acao_total_leads") || "[]");
+      localStorage.setItem("acao_total_leads", JSON.stringify([lead, ...currentLeads].slice(0, 30)));
+    } catch {
+      localStorage.setItem("acao_total_lead_backup", JSON.stringify(lead));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.nome || !formData.telefone) return;
+
+    setIsSubmitting(true);
+    persistLeadLocally();
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      window.open(getWhatsappLink(), "_blank", "noopener,noreferrer");
+    }, 500);
+  };
+
   const handleReset = () => {
-    setFormData({ nome: "", telefone: "", segmento: "", mensagem: "" });
+    setFormData({ nome: "", telefone: "", segmento: "", cidade: "", mensagem: "" });
     setIsSubmitted(false);
   };
 
   const faqs: FAQItem[] = [
     {
-      question: "Como posso ter certeza de que o carro de som realmente percorreu meu bairro?",
-      answer: "Transparência é nossa prioridade absoluta. Todos os nossos veículos de som são monitorados por rastreadores GPS de alta precisão em tempo real. Ao final de cada campanha de circulação, fornecemos um link ou relatório interativo com o mapa exato das rotas, velocidades e horas rodadas pelo motorista."
+      question: "Como sei que o carro de som realmente circulou?",
+      answer: "As campanhas podem ser acompanhadas com rota planejada e comprovação por GPS, conforme o formato contratado. Isso dá mais transparência para saber onde e por quanto tempo a divulgação rodou.",
     },
     {
-      question: "Vocês cobram pela redação e gravação do spot comercial?",
-      answer: "Na contratação de qualquer plano semanal ou mensal de carro de som volante ou rádio corporativa, a redação do roteiro de ofertas e a gravação profissional do spot em estúdio são 100% gratuitas, inclusas como benefício de boas-vindas do pacote comercial."
+      question: "Vocês fazem o texto e a gravação do anúncio?",
+      answer: "Sim. Podemos produzir o texto comercial e gravar o spot com locução profissional, deixando o áudio pronto para carro de som, rádio interna, frente de loja, WhatsApp ou redes sociais.",
     },
     {
-      question: "Os veículos estão autorizados de acordo com as leis de silêncio municipais?",
-      answer: "Sim! A Ação Total Propaganda trabalha estritamente em conformidade com as regras de vigilância ambiental e leis de controle de poluição sonora em Anápolis (Goiás) e Aracaju (Sergipe). Calibramos os alto-falantes para não ultrapassar os limites legais de decibéis e circulamos somente nos horários regulamentados, garantindo uma recepção amigável do público."
+      question: "A propaganda de rua respeita as regras da cidade?",
+      answer: "A operação é planejada considerando horários, rotas, intensidade sonora e regras locais aplicáveis. O objetivo é divulgar sua marca com impacto, sem transformar a ação em incômodo para a comunidade.",
     },
     {
-      question: "Como funciona a implantação da Rádio Ação no meu supermercado?",
-      answer: "É extremamente simples e rápido. Instalamos nosso reprodutor digital inteligente conectado ao sistema de som existente do seu supermercado ou loja. Nossa plataforma gerencia a grade de músicas remotamente, insere vinhetas promocionais e de ofertas em horários programados automaticamente, e continua funcionando de forma off-line estável mesmo que sua internet caia temporariamente."
+      question: "Como funciona a rádio interna no supermercado ou loja?",
+      answer: "A programação toca músicas, avisos, vinhetas e ofertas dentro do ponto de venda. Assim, o cliente escuta promoções enquanto compra e sua loja ganha um canal próprio de comunicação.",
     },
     {
-      question: "Quais segmentos comerciais têm melhor retorno com propaganda volante?",
-      answer: "Supermercados, farmácias de manipulação, redes de óticas, lojas de confecções/roupas, açougues, distribuidoras de bebidas e concessionárias de veículos de varejo têm resultados espetaculares. Por ser uma mídia de impacto imediato na vizinhança geográfica, atrai o cliente para a porta no mesmo dia da circulação."
-    }
+      question: "Quais empresas costumam ter bom retorno?",
+      answer: "Supermercados, farmácias, óticas, lojas de roupas, açougues, concessionárias, construtoras, escolas, cursos e negócios em inauguração costumam aproveitar bem campanhas de rua, panfletagem, rádio interna e anúncios locais.",
+    },
   ];
 
   return (
     <div className="relative min-h-screen pt-32 pb-20 px-6 overflow-hidden bg-midnight-carbon">
-      {/* Glow ambient decoration */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-brand-yellow/3 rounded-full blur-[110px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        
-        {/* Main Grid: Form / Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch mb-24">
-          
-          {/* Left Column: Info cards (5 columns) */}
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div className="space-y-6">
               <div>
-                <span className="text-[10px] font-mono font-bold text-brand-yellow tracking-widest bg-brand-yellow/10 px-3 py-1 rounded-full border border-brand-yellow/15 inline-block mb-3 uppercase">
-                  PRESENÇA E CONTATO
+                <span className="text-[10px] font-bold text-brand-yellow tracking-widest bg-brand-yellow/10 px-3 py-1 rounded-full border border-brand-yellow/15 inline-block mb-3 uppercase">
+                  Atendimento comercial
                 </span>
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 font-display">
-                  Fale Direto Com Nossa Equipe
+                  Fale com a Ação Total pelo WhatsApp
                 </h1>
                 <p className="text-slate-400 font-light text-xs sm:text-sm leading-relaxed">
-                  Pronto para fazer sua marca ser ouvida por milhares de clientes em Anápolis (GO), Aracaju (SE) e regiões? Entre em contato agora e fale com um consultor comercial especialista.
+                  Informe seus dados e envie a mensagem diretamente para nossa equipe. Quanto mais claro for o segmento e a cidade, mais rápida fica a sugestão de campanha.
                 </p>
               </div>
 
-              {/* Information Blocks */}
               <div className="space-y-4">
-                
-                {/* Phone Card */}
-                <div className="bg-[#0B0B0E] p-4.5 rounded-2xl border border-white/5 flex gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-yellow shrink-0">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">WhatsApp & Ligações</h4>
-                    <a
-                      href={`https://wa.me/${rawPhone}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-white hover:text-brand-yellow text-base font-bold mt-0.5 inline-block transition-colors font-display"
-                    >
-                      {displayPhone}
-                    </a>
-                    <p className="text-[10px] text-slate-500 font-light mt-0.5">Disponível de segunda a sábado</p>
-                  </div>
-                </div>
+                <InfoCard icon={<Phone className="w-5 h-5" />} title="WhatsApp e ligações">
+                  <a
+                    href={`https://wa.me/${rawPhone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-brand-yellow text-base font-bold mt-0.5 inline-block transition-colors font-display"
+                  >
+                    {displayPhone}
+                  </a>
+                  <p className="text-[10px] text-slate-500 font-light mt-0.5">Atendimento comercial de segunda a sábado</p>
+                </InfoCard>
 
-                {/* Address Card */}
-                <div className="bg-[#0B0B0E] p-4.5 rounded-2xl border border-white/5 flex gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-yellow shrink-0">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Local Operacional</h4>
-                    <p className="text-slate-200 text-xs font-semibold mt-0.5">
-                      Anápolis - GO | Aracaju - SE
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-light mt-0.5">Visitas presenciais mediante agendamento comercial</p>
-                  </div>
-                </div>
+                <InfoCard icon={<MapPin className="w-5 h-5" />} title="Cidades atendidas">
+                  <p className="text-slate-200 text-xs font-semibold mt-0.5">Anápolis - GO | Aracaju - SE</p>
+                  <p className="text-[10px] text-slate-500 font-light mt-0.5">Outras cidades sob consulta de operação e frota</p>
+                </InfoCard>
 
-                {/* Hours Card */}
-                <div className="bg-[#0B0B0E] p-4.5 rounded-2xl border border-white/5 flex gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-yellow shrink-0">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Atendimento Comercial</h4>
-                    <p className="text-slate-200 text-xs font-semibold mt-0.5">
-                      Segunda a Sexta: 08:00 às 18:00
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-light mt-0.5">Sábados: 08:00 às 12:00</p>
-                  </div>
-                </div>
-
+                <InfoCard icon={<Clock className="w-5 h-5" />} title="Horário de atendimento">
+                  <p className="text-slate-200 text-xs font-semibold mt-0.5">Segunda a Sexta: 08:00 às 18:00</p>
+                  <p className="text-[10px] text-slate-500 font-light mt-0.5">Sábados: 08:00 às 12:00</p>
+                </InfoCard>
               </div>
             </div>
 
-            {/* micro badge credits */}
-            <div className="pt-6 border-t border-white/5 mt-6 hidden lg:block text-[10px] text-slate-500 font-mono">
-              AÇÃO TOTAL PROPAGANDA • CNPJ REGISTRADO
+            <div className="pt-6 border-t border-white/5 mt-6 hidden lg:block text-[10px] text-slate-500">
+              AÇÃO TOTAL PROPAGANDA • ATENDIMENTO PARA CAMPANHAS LOCAIS
             </div>
           </div>
 
-          {/* Right Column: Premium Form (7 columns) */}
           <div className="lg:col-span-7">
             <div className="glass-card rounded-3xl p-8 sm:p-10 border border-white/10 relative overflow-hidden" id="contact-view-form">
               <AnimatePresence mode="wait">
@@ -180,73 +167,35 @@ export default function ContactView() {
                     className="space-y-5"
                   >
                     <div>
-                      <h3 className="text-lg font-bold text-white mb-1">Solicitar Atendimento Exclusivo</h3>
+                      <h3 className="text-lg font-bold text-white mb-1">Solicitar atendimento agora</h3>
                       <p className="text-[11px] text-slate-400">
-                        Preencha os campos abaixo e entraremos em contato com uma proposta comercial formatada sob medida.
+                        O formulário abre o WhatsApp com sua mensagem pronta. Seus dados não substituem um CRM/backend; eles são usados para facilitar o contato imediato.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Name input */}
-                      <div className="flex flex-col space-y-1.5">
-                        <label htmlFor="nome" className="text-[11px] font-semibold text-slate-300">Seu Nome <span className="text-brand-yellow">*</span></label>
-                        <input
-                          type="text"
-                          id="nome"
-                          name="nome"
-                          required
-                          value={formData.nome}
-                          onChange={handleInputChange}
-                          placeholder="Ex: João"
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
-                        />
-                      </div>
-
-                      {/* Phone input */}
-                      <div className="flex flex-col space-y-1.5">
-                        <label htmlFor="telefone" className="text-[11px] font-semibold text-slate-300">WhatsApp / Celular <span className="text-brand-yellow">*</span></label>
-                        <input
-                          type="tel"
-                          id="telefone"
-                          name="telefone"
-                          required
-                          value={formData.telefone}
-                          onChange={handleInputChange}
-                          placeholder="Ex: (62) 99999-9999"
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
-                        />
-                      </div>
+                      <FormInput label="Seu nome" name="nome" value={formData.nome} onChange={handleInputChange} required placeholder="Ex: João" />
+                      <FormInput label="WhatsApp / Celular" name="telefone" type="tel" value={formData.telefone} onChange={handleInputChange} required placeholder="Ex: (62) 99999-9999" />
                     </div>
 
-                    {/* Business Niche */}
-                    <div className="flex flex-col space-y-1.5">
-                      <label htmlFor="segmento" className="text-[11px] font-semibold text-slate-300">Segmento Comercial</label>
-                      <input
-                        type="text"
-                        id="segmento"
-                        name="segmento"
-                        value={formData.segmento}
-                        onChange={handleInputChange}
-                        placeholder="Ex: Supermercado, Farmácia, Loja de Roupas, E-commerce, Açougue..."
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <FormInput label="Cidade" name="cidade" value={formData.cidade} onChange={handleInputChange} placeholder="Ex: Anápolis" />
+                      <FormInput label="Segmento" name="segmento" value={formData.segmento} onChange={handleInputChange} placeholder="Ex: Supermercado, farmácia, loja..." />
                     </div>
 
-                    {/* Message */}
                     <div className="flex flex-col space-y-1.5">
-                      <label htmlFor="mensagem" className="text-[11px] font-semibold text-slate-300">Mensagem (Opcional)</label>
+                      <label htmlFor="mensagem" className="text-[11px] font-semibold text-slate-300">Mensagem</label>
                       <textarea
                         id="mensagem"
                         name="mensagem"
                         rows={3}
                         value={formData.mensagem}
                         onChange={handleInputChange}
-                        placeholder="Ex: Gostaria de contratar carro de som por 15 dias para promoção ou saber preços da rádio interna..."
+                        placeholder="Ex: Quero divulgar uma promoção por 15 dias com carro de som e panfletagem..."
                         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300 resize-none"
                       />
                     </div>
 
-                    {/* Submit Button */}
                     <motion.button
                       type="submit"
                       disabled={isSubmitting}
@@ -257,18 +206,17 @@ export default function ContactView() {
                       {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                          Processando...
+                          Preparando WhatsApp...
                         </>
                       ) : (
                         <>
                           <Send className="w-4 h-4 text-black stroke-[3]" />
-                          Enviar Proposta Comercial
+                          Enviar para o WhatsApp
                         </>
                       )}
                     </motion.button>
                   </motion.form>
                 ) : (
-                  // Success layout block
                   <motion.div
                     key="success"
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -280,9 +228,9 @@ export default function ContactView() {
                       <CheckCircle2 className="w-8 h-8" />
                     </div>
 
-                    <h3 className="text-xl font-bold text-white mb-2">Solicitação Enviada!</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">WhatsApp preparado!</h3>
                     <p className="text-slate-400 text-xs max-w-sm mx-auto mb-8">
-                      Olá {formData.nome}, seu contato foi registrado no simulador local. Para obter retorno instantâneo do gerente, use o link do WhatsApp abaixo:
+                      Caso a janela não tenha aberto automaticamente, clique no botão abaixo para enviar sua mensagem.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
@@ -293,14 +241,14 @@ export default function ContactView() {
                         className="bg-brand-yellow hover:bg-[#ffd633] text-black font-extrabold uppercase tracking-wider px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-brand-yellow/10"
                       >
                         <MessageCircle className="w-4.5 h-4.5 fill-current text-black" />
-                        Chamar no WhatsApp
+                        Enviar no WhatsApp
                         <ExternalLink className="w-3.5 h-3.5 text-black stroke-[3]" />
                       </a>
                       <button
                         onClick={handleReset}
                         className="bg-white/5 hover:bg-white/10 text-slate-300 px-6 py-3 rounded-xl text-xs font-semibold border border-white/10 transition-colors"
                       >
-                        Enviar Novamente
+                        Enviar outra mensagem
                       </button>
                     </div>
                   </motion.div>
@@ -308,24 +256,19 @@ export default function ContactView() {
               </AnimatePresence>
             </div>
           </div>
-
         </div>
 
-        {/* Local Merchant Frequently Asked Questions (FAQ) section */}
         <div className="border-t border-white/5 pt-16">
           <div className="text-center mb-12">
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">DÚVIDAS FREQUENTES (FAQ)</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 font-display">Respostas Rápidas para o Comerciante</h2>
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest">DÚVIDAS FREQUENTES</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1 font-display">Respostas rápidas para quem quer divulgar</h2>
           </div>
 
           <div className="max-w-3xl mx-auto space-y-4" id="faq-accordions">
             {faqs.map((faq, idx) => {
               const isOpen = openFaqIdx === idx;
               return (
-                <div
-                  key={idx}
-                  className="bg-white/[0.01] border border-white/5 rounded-2xl overflow-hidden transition-all duration-300"
-                >
+                <div key={idx} className="bg-white/[0.01] border border-white/5 rounded-2xl overflow-hidden transition-all duration-300">
                   <button
                     onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
                     className="w-full text-left px-6 py-4 flex justify-between items-center cursor-pointer hover:bg-white/[0.02]"
@@ -357,8 +300,57 @@ export default function ContactView() {
             })}
           </div>
         </div>
-
       </div>
+    </div>
+  );
+}
+
+interface InfoCardProps {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}
+
+function InfoCard({ icon, title, children }: InfoCardProps) {
+  return (
+    <div className="bg-[#0B0B0E] p-4 rounded-2xl border border-white/5 flex gap-4">
+      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-yellow shrink-0">
+        {icon}
+      </div>
+      <div>
+        <h4 className="text-[10px] text-slate-500 uppercase tracking-widest">{title}</h4>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+interface FormInputProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  type?: string;
+  required?: boolean;
+}
+
+function FormInput({ label, name, value, onChange, placeholder, type = "text", required = false }: FormInputProps) {
+  return (
+    <div className="flex flex-col space-y-1.5">
+      <label htmlFor={name} className="text-[11px] font-semibold text-slate-300">
+        {label} {required && <span className="text-brand-yellow">*</span>}
+      </label>
+      <input
+        type={type}
+        id={name}
+        name={name}
+        required={required}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
+      />
     </div>
   );
 }
