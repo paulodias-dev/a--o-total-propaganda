@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-yellow: #FFCC00;
+  --color-brand-orange: #FFCC00; /* fallbacks if any component uses orange */
+  --color-brand-cyan: #FFFFFF; /* changed secondary to Crisp White */
+  --color-midnight-carbon: #08080C;
+}
+
+@layer base {
+  body {
+    background-color: #08080C;
+    color: #FFFFFF;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  /* Custom glassmorphism classes */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 204, 0, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(255, 204, 0, 0.15);
+  }
+
+  /* Custom Scrollbar for premium feel */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #08080C;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 204, 0, 0.5);
+  }
+}
