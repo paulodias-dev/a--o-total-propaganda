@@ -10,20 +10,18 @@ import {
   Truck,
   ArrowRight,
   Sparkles,
-  Music,
   Map,
-  Volume2
+  MessageCircle,
 } from "lucide-react";
 
 interface ServicesViewProps {
   initialActiveServiceId?: string;
-  onNavigate: (page: string) => void;
+  onNavigate: (page: string, subServiceId?: string) => void;
 }
 
 export default function ServicesView({ initialActiveServiceId, onNavigate }: ServicesViewProps) {
   const [activeService, setActiveService] = useState<string>("carro-som");
 
-  // Sync state if initialActiveServiceId is supplied from home cards click
   useEffect(() => {
     if (initialActiveServiceId) {
       setActiveService(initialActiveServiceId);
@@ -34,151 +32,152 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
     {
       id: "carro-som",
       shortTitle: "Carro de Som",
-      title: "Carros de Som & Mini-Trios",
-      tagline: "Propaganda volante diária de alto impacto para bairros e centros comerciais.",
+      title: "Carro de Som para Divulgação Local",
+      tagline: "Leve sua oferta aos bairros certos e gere movimento no comércio no mesmo dia.",
       icon: Megaphone,
-      desc: "Nossos carros de som e mini-trios são calibrados para fornecer áudio cristalino e agradável sem ruídos ou distorções. Diferente de alto-falantes comuns, nossa frota utiliza engenharia acústica direcionada de alta qualidade, garantindo que sua gravação seja assimilada com clareza mesmo por quem está no interior das residências.",
+      desc: "Planejamos a rota, produzimos o áudio comercial e colocamos sua mensagem para circular com clareza em regiões estratégicas. É ideal para promoções de supermercado, inaugurações, farmácias, óticas, lojas, feirões e campanhas de varejo.",
       benefits: [
-        "Roteiros estratégicos geolocalizados baseados em densidade demográfica.",
-        "Rastreamento de rotas via GPS (fornecemos relatórios com mapas provando a circulação).",
-        "Motoristas capacitados e experientes que mantêm velocidade ideal de propaganda.",
-        "Ideal para supermercados, farmácias, inaugurações, óticas e feirões de varejo."
+        "Roteiro de circulação definido de acordo com bairros, fluxo e público desejado.",
+        "Possibilidade de acompanhamento por GPS para comprovar a rota contratada.",
+        "Spot comercial com linguagem vendedora e chamada clara para ação.",
+        "Atendimento indicado para ofertas, inaugurações, liquidações e campanhas sazonais.",
       ],
-      specs: [
-        { label: "Equipamento", value: "Corneta Fenólica Selecionada + Amplificadores de Alta Fidelidade" },
-        { label: "Volume de Som", value: "Sempre de acordo com a lei municipal de decibéis (80db)" },
-        { label: "Cobertura", value: "Anápolis (GO), Aracaju (SE) (todos os bairros) e eixos metropolitanos" },
-        { label: "Duração Ideal", value: "De 3 a 6 horas diárias para consolidação da mensagem" }
-      ]
+      included: [
+        { label: "Indicado para", value: "Supermercados, farmácias, óticas, lojas, açougues e feirões." },
+        { label: "Cobertura", value: "Anápolis, Aracaju e cidades próximas sob consulta." },
+        { label: "Execução", value: "Campanhas por hora, diária, semana ou mês." },
+        { label: "Diferencial", value: "Rota planejada, áudio profissional e atendimento direto pelo WhatsApp." },
+      ],
     },
     {
       id: "trio-eletrico",
       shortTitle: "Trio Elétrico",
-      title: "Trio Elétrico & Grandes Eventos",
-      tagline: "Megaestrutura sonora para carreatas, comícios, desfiles e inaugurações de grande porte.",
+      title: "Trio Elétrico para Eventos, Carreatas e Inaugurações",
+      tagline: "Estrutura sonora de alto impacto para grandes ações externas.",
       icon: Truck,
-      desc: "Dispomos de trios-elétricos e caminhões de som de grande porte perfeitos para eventos com grande aglomeração de pessoas. Com gerador de energia próprio e espaço para locutores, djs e artistas no teto do veículo, nosso trio garante a máxima potência com qualidade acústica inigualável na região.",
+      desc: "Quando a ação precisa chamar atenção em grande escala, o trio elétrico entrega presença, potência e visibilidade. É uma solução forte para inaugurações, eventos promocionais, carreatas, campanhas institucionais e ativações com grande circulação de pessoas.",
       benefits: [
-        "Gerador de energia silencioso integrado para funcionamento ininterrupto.",
-        "Área superior com guarda-corpo de segurança para locutores e autoridades.",
-        "Fidelidade sonora extrema com caixas do tipo Line Array de última geração.",
-        "Excelente para comícios políticos, carreatas religiosas, megafeirões de concessionárias e passeatas."
+        "Som de grande alcance para ações que precisam ser percebidas de longe.",
+        "Ideal para eventos, inaugurações, campanhas promocionais e mobilizações.",
+        "Possibilidade de locução ao vivo, roteiro e chamadas de impacto.",
+        "Equipe orientada para executar a ação com organização e segurança.",
       ],
-      specs: [
-        { label: "Potência Sonora", value: "Até 30.000 Watts RMS sem distorção" },
-        { label: "Estrutura", value: "Stage superior com capacidade de peso homologada" },
-        { label: "Gerador", value: "Embutido e independente para total autonomia" },
-        { label: "Indicado Para", value: "Mobilizações em massa e carreatas corporativas" }
-      ]
+      included: [
+        { label: "Indicado para", value: "Carreatas, inaugurações, campanhas comerciais e eventos de rua." },
+        { label: "Formato", value: "Contratação por evento, diária ou período combinado." },
+        { label: "Apoio", value: "Locução, roteiro comercial e orientação da ação." },
+        { label: "Objetivo", value: "Gerar presença, movimento e lembrança imediata da marca." },
+      ],
     },
     {
       id: "radio-interna",
       shortTitle: "Rádio Interna",
-      title: "Rádio Interna Corporativa (Rádio Ação)",
-      tagline: "Aumente as vendas do seu ponto de venda (PDV) influenciando a decisão de compra.",
+      title: "Rádio Interna para Supermercados, Lojas e Farmácias",
+      tagline: "Transforme o som ambiente em um canal de vendas dentro do ponto de venda.",
       icon: Radio,
-      desc: "A Rádio Ação transforma seu estabelecimento em uma verdadeira rádio ao vivo. Removemos o som ambiente comum, substituindo-o por uma programação musical selecionada de acordo com o perfil demográfico de seu cliente, entremeada de anúncios curtos e persuasivos das suas ofertas internas do dia, ditas por vozes de rádio extremamente profissionais.",
+      desc: "A Rádio Ação permite tocar músicas selecionadas, avisos, vinhetas e ofertas dentro da loja. O cliente escuta suas promoções enquanto compra, o que ajuda a destacar produtos, setores e campanhas do dia.",
       benefits: [
-        "Aumento real de até 18% no ticket médio do ponto de venda.",
-        "Zero anúncios de concorrentes (diferente de rádio FM tradicional ou playlists gratuitas).",
-        "Controle de ofertas de forma instantânea via painel digital exclusivo.",
-        "Reduz consideravelmente a ansiedade e sensação de demora nas filas do caixa."
+        "Anúncios internos sem divulgar concorrentes, diferente de rádio comum ou playlist aberta.",
+        "Ofertas gravadas com locução profissional e programação personalizada.",
+        "Ótima para açougue, hortifruti, padaria, farmácia, perfumaria e campanhas de loja.",
+        "Comunicação recorrente com o cliente no momento de decisão de compra.",
       ],
-      specs: [
-        { label: "Plataforma", value: "Digital com funcionamento offline em caso de queda de internet" },
-        { label: "Grade Musical", value: "Sertanejo, Pop, MPB ou Gospel (100% customizado)" },
-        { label: "Atualização", value: "Inserção instantânea de novas ofertas em menos de 2 horas úteis" },
-        { label: "Nicho Recomendado", value: "Supermercados, magazines, farmácias, sacolões e magazines" }
-      ]
+      included: [
+        { label: "Indicado para", value: "Supermercados, magazines, farmácias, sacolões e lojas de varejo." },
+        { label: "Conteúdo", value: "Músicas, vinhetas, chamadas de oferta e avisos comerciais." },
+        { label: "Atualização", value: "Novas ofertas podem ser produzidas conforme a campanha." },
+        { label: "Objetivo", value: "Valorizar ofertas e aumentar a atenção do cliente dentro da loja." },
+      ],
     },
     {
       id: "locucao-spot",
-      shortTitle: "Gravação de Spot",
-      title: "Locução Comercial & Gravação de Spots",
-      tagline: "Sua mensagem transmitida por vozes vendedoras altamente impactantes.",
+      shortTitle: "Spot Comercial",
+      title: "Locução Comercial e Gravação de Spots",
+      tagline: "Sua oferta com uma voz profissional, clara e pronta para vender.",
       icon: Mic,
-      desc: "Um áudio mal gravado joga no lixo a credibilidade da sua empresa. Nosso estúdio produz spots comerciais, jingles cantados, chamadas de impacto e vinhetas com locutores de rádio de classe internacional. Criamos a redação do texto com gatilhos de vendas e inserimos trilhas sonoras licenciadas de alta qualidade para prender a atenção do consumidor.",
+      desc: "Um bom anúncio precisa ser entendido rápido. Criamos textos comerciais, chamadas promocionais, vinhetas e spots para carro de som, rádio interna, frente de loja, redes sociais e campanhas institucionais.",
       benefits: [
-        "Equipe de redatores focados em redação publicitária de alto impacto.",
-        "Estúdio profissional equipado com microfones e compressores Neumann/Shure.",
-        "Entrega expressa de spots finalizados em até 24 horas úteis.",
-        "Diferentes estilos de vozes: Varejo, Coloquial, Jovem, Institucional e Caricata."
+        "Roteiro com linguagem de venda e chamada direta para ação.",
+        "Locutores profissionais para diferentes estilos de campanha.",
+        "Áudio preparado para carro de som, loja, internet ou rádio interna.",
+        "Entrega ágil para campanhas que precisam ir para a rua rápido.",
       ],
-      specs: [
-        { label: "Formatos", value: "MP3 de Alta Resolução, WAV e OGG calibrados para som de rua" },
-        { label: "Tipos de Áudio", value: "Spots, Jingles Comerciais, Esperas Telefônicas, Audiobooks" },
-        { label: "Vozes Disponíveis", value: "Locutores masculinos e femininos de rádio FM de Goiás e Sergipe" },
-        { label: "Redação", value: "Criamos e editamos seus roteiros de ofertas sem custo adicional" }
-      ]
+      included: [
+        { label: "Tipos", value: "Spots, vinhetas, chamadas, jingles e textos promocionais." },
+        { label: "Uso", value: "Carro de som, rádio interna, loja, WhatsApp e redes sociais." },
+        { label: "Linguagem", value: "Varejo, institucional, popular, jovem, urgente ou promocional." },
+        { label: "Objetivo", value: "Fazer a mensagem ser lembrada e gerar ação do público." },
+      ],
     },
     {
       id: "panfletagem",
-      shortTitle: "Panfletagem & Blitz",
-      title: "Panfletagem Estratégica & Blitz de Rua",
-      tagline: "Ativação física cirúrgica para inundar o ponto de venda de novos leads.",
+      shortTitle: "Panfletagem",
+      title: "Panfletagem Estratégica e Blitz Promocional",
+      tagline: "Coloque sua oferta na mão de quem circula perto da sua loja.",
       icon: Users,
-      desc: "Ativamos sua loja de forma física com promotores uniformizados, panfletagem planejada por geolocalização e blitz comercial festiva. Sincronizamos a ação de distribuição de panfletos com nossos carros de som na porta e locutores de frente de loja para garantir que ninguém passe sem notar sua promoção.",
+      desc: "Planejamos ações com promotores, distribuição em pontos de fluxo, frente de loja, bairros, semáforos, eventos e campanhas integradas com carro de som. É ideal para gerar visibilidade física e atrair pessoas para o ponto de venda.",
       benefits: [
-        "Promotores selecionados e treinados para abordagem cortês e vendedora.",
-        "Mapeamento de locais de maior fluxo baseado no público do seu segmento.",
-        "Blitz promocional festiva com balões, tendas, som de frente de loja e brindes.",
-        "Fiscalização presencial em tempo real para garantir entrega real de material."
+        "Promotores orientados para abordagem comercial e entrega organizada.",
+        "Mapeamento dos pontos com maior fluxo para o segmento da campanha.",
+        "Possibilidade de integrar panfletagem, som de rua, locutor e blitz visual.",
+        "Supervisão da ação com fotos, vídeos ou acompanhamento combinado.",
       ],
-      specs: [
-        { label: "Tipos de Abordagem", value: "Semáforos, Saídas de Escolas, Portas de Lojas, Caixas de Correio" },
-        { label: "Visual", value: "Tendas personalizadas, windflags, caixas de som de calçada" },
-        { label: "Supervisão", value: "Fiscais motorizados registrando fotos e vídeos da ação" },
-        { label: "Segmento Forte", value: "Inaugurações de lojas, lançamentos imobiliários, feiras e eventos" }
-      ]
+      included: [
+        { label: "Locais", value: "Semáforos, porta de loja, escolas, bairros, eventos e pontos comerciais." },
+        { label: "Indicado para", value: "Inaugurações, lançamentos, liquidações e ações de bairro." },
+        { label: "Equipe", value: "Promotores, supervisão e orientação de abordagem." },
+        { label: "Objetivo", value: "Gerar alcance físico e aumentar o fluxo para sua empresa." },
+      ],
     },
     {
       id: "trafego-pago",
-      shortTitle: "Marketing Digital",
-      title: "Marketing Digital & Tráfego de Performance",
-      tagline: "Apareça na tela do celular de quem mora perto e quer comprar de você.",
+      shortTitle: "Anúncios Digitais",
+      title: "Tráfego Pago Local para Empresas",
+      tagline: "Apareça para quem está perto e tem chance real de comprar de você.",
       icon: TrendingUp,
-      desc: "Não adianta apenas fazer barulho offline se sua empresa não existe no mundo online. Criamos campanhas cirúrgicas de anúncios no Google Ads (para aparecer no topo quando pesquisarem seu serviço), Instagram Ads e Facebook Ads (para impactar os moradores do bairro com as ofertas da semana).",
+      desc: "Criamos campanhas no Google, Instagram e Facebook para impactar pessoas próximas da sua empresa. A estratégia pode trabalhar junto com carro de som, panfletagem e rádio interna para ampliar presença e gerar contatos pelo WhatsApp.",
       benefits: [
-        "Segmentação local por raio de quilômetros ao redor de seu ponto de venda.",
-        "Criação de Landing Pages ultrarrápidas focadas em converter clique em contato WhatsApp.",
-        "Otimização do perfil de Google Meu Negócio / Google Maps para atração orgânica.",
-        "Análise de dados semanais para investimento inteligente e redução do custo de aquisição de leads."
+        "Segmentação local por cidade, bairro, raio e perfil de público.",
+        "Campanhas com foco em WhatsApp, ligações, visitas e pedidos de orçamento.",
+        "Apoio na comunicação da oferta e criativos comerciais.",
+        "Indicado para empresas que querem vender localmente com mensuração de resultados.",
       ],
-      specs: [
-        { label: "Plataformas", value: "Google Ads, Meta Ads (Instagram/Facebook) e TikTok Ads" },
-        { label: "Páginas inclusas", value: "Landing Pages institucionais de alta velocidade e conversão" },
-        { label: "Foco", value: "Vendas locais imediatas e geração de leads qualificados" },
-        { label: "Métricas", value: "Acompanhamento do Retorno sobre Investimento (ROAS)" }
-      ]
-    }
+      included: [
+        { label: "Canais", value: "Google Ads, Instagram, Facebook e campanhas locais." },
+        { label: "Foco", value: "Gerar contatos, chamadas, visitas e orçamentos." },
+        { label: "Estratégia", value: "Anúncios combinados com ações de rua e ofertas comerciais." },
+        { label: "Objetivo", value: "Transformar alcance digital em atendimento pelo WhatsApp." },
+      ],
+    },
   ];
 
   const currentServiceData = servicesList.find((s) => s.id === activeService) || servicesList[0];
   const ActiveIcon = currentServiceData.icon;
 
+  const handleWhatsAppService = () => {
+    const text = `Olá! Vi o site da Ação Total e quero atendimento sobre ${currentServiceData.title}. Gostaria de receber uma sugestão de campanha e orçamento.`;
+    window.open(`https://wa.me/5562991962033?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className="relative min-h-screen pt-32 pb-20 px-6 overflow-hidden bg-midnight-carbon">
-      {/* Background orbs */}
       <div className="absolute top-1/4 left-1/3 w-[450px] h-[450px] bg-brand-yellow/3 rounded-full blur-[110px] pointer-events-none" />
       <div className="absolute bottom-20 right-1/4 w-[350px] h-[350px] bg-white/2 rounded-full blur-[90px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative z-10">
-        
-        {/* Title Header */}
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-yellow/10 border border-brand-yellow/20 text-xs font-semibold text-brand-yellow mb-4">
             <Sparkles className="w-3.5 h-3.5" />
-            NOSSAS CAPABILIDADES
+            COMO PODEMOS DIVULGAR SUA EMPRESA
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 font-display">
-            Serviços de Comunicação e Marketing
+            Serviços para atrair clientes e movimentar sua loja
           </h1>
-          <p className="text-slate-400 max-w-xl mx-auto text-xs sm:text-sm font-light">
-            Selecione uma de nossas soluções abaixo para conhecer a fundo nossos diferenciais técnicos e metodologias de venda.
+          <p className="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base font-light">
+            Selecione uma opção abaixo e veja como a Ação Total pode divulgar sua oferta nas ruas, dentro da loja e no digital.
           </p>
         </div>
 
-        {/* Services Navigation Buttons Grid */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-12 bg-black/30 p-2 rounded-2xl border border-white/5" id="services-tabs-nav">
           {servicesList.map((service) => {
             const Icon = service.icon;
@@ -200,7 +199,6 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
           })}
         </div>
 
-        {/* Active Service Detailed Panel */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeService}
@@ -211,18 +209,16 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
             className="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-white/[0.01] border border-white/5 rounded-3xl p-8 sm:p-12 relative overflow-hidden"
             id="active-service-details-panel"
           >
-            {/* Background pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.005)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-            
-            {/* Left Column: Descriptions (7 columns) */}
-            <div className="lg:col-span-7 flex flex-col justify-between">
+
+            <div className="lg:col-span-7 flex flex-col justify-between relative z-10">
               <div>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center border border-brand-yellow/20 text-brand-yellow">
                     <ActiveIcon className="w-6 h-6 stroke-[2]" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-brand-yellow uppercase tracking-widest font-semibold">Canais de Resultados</span>
+                    <span className="text-[10px] text-brand-yellow uppercase tracking-widest font-semibold">Serviço escolhido</span>
                     <h2 className="text-2xl sm:text-3xl font-black text-white font-display mt-0.5">{currentServiceData.title}</h2>
                   </div>
                 </div>
@@ -237,7 +233,7 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
 
                 <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-brand-yellow" />
-                  Diferenciais de Execução e Vantagens:
+                  O que você ganha com esta ação
                 </h3>
 
                 <ul className="space-y-3 mb-8">
@@ -250,39 +246,37 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
                 </ul>
               </div>
 
-              {/* Action Buttons inside services views */}
               <div className="flex flex-col sm:flex-row gap-4 border-t border-white/5 pt-6 w-full">
                 <button
                   onClick={() => onNavigate("orcamento")}
                   className="bg-brand-yellow hover:bg-[#ffd633] text-black font-extrabold text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl shadow-lg shadow-brand-yellow/10 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  Fazer Simulação de Custos
+                  Montar orçamento
                   <ArrowRight className="w-4 h-4 text-black stroke-[3]" />
                 </button>
                 <button
-                  onClick={() => onNavigate("contato")}
-                  className="bg-white/5 hover:bg-white/10 text-white font-semibold text-xs uppercase tracking-wider px-6 py-3.5 rounded-xl border border-white/10 transition-colors cursor-pointer"
+                  onClick={handleWhatsAppService}
+                  className="bg-white/5 hover:bg-white/10 text-white font-semibold text-xs uppercase tracking-wider px-6 py-3.5 rounded-xl border border-white/10 transition-colors cursor-pointer flex items-center justify-center gap-2"
                 >
-                  Falar via WhatsApp
+                  <MessageCircle className="w-4 h-4 text-brand-yellow" />
+                  Falar no WhatsApp
                 </button>
               </div>
             </div>
 
-            {/* Right Column: Technical Spec Table & Visual Card (5 columns) */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
-              {/* Specs Box */}
+            <div className="lg:col-span-5 flex flex-col justify-between relative z-10">
               <div className="bg-black/30 border border-white/5 rounded-2xl p-6 relative overflow-hidden flex-1 flex flex-col justify-between mb-6">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-white/2 rounded-full blur-2xl" />
-                
+
                 <div>
-                  <h4 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-3">
-                    Ficha Técnica / Parâmetros
+                  <h4 className="text-xs text-slate-500 uppercase tracking-widest mb-6 border-b border-white/5 pb-3">
+                    O que está incluso
                   </h4>
 
                   <div className="space-y-5">
-                    {currentServiceData.specs.map((spec, i) => (
+                    {currentServiceData.included.map((spec, i) => (
                       <div key={i} className="flex flex-col space-y-1">
-                        <span className="text-[10px] font-mono text-slate-500 uppercase">{spec.label}</span>
+                        <span className="text-[10px] text-slate-500 uppercase">{spec.label}</span>
                         <span className="text-xs text-slate-200 font-semibold">{spec.value}</span>
                       </div>
                     ))}
@@ -290,26 +284,22 @@ export default function ServicesView({ initialActiveServiceId, onNavigate }: Ser
                 </div>
 
                 <div className="mt-8 border-t border-white/5 pt-4 text-[10px] text-slate-500 font-light italic">
-                  * Todas as nossas operações de áudio respeitam estritamente a Lei Orgânica Municipal de Silêncio e Posturas Ambientais.
+                  Cada campanha é ajustada conforme cidade, segmento, datas, rota, equipe e objetivo comercial.
                 </div>
               </div>
 
-              {/* Mini visual preview card depicting map tracking or radio signal */}
               <div className="bg-gradient-to-r from-brand-yellow/10 to-transparent p-4 rounded-xl border border-brand-yellow/10 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-brand-yellow/20 flex items-center justify-center text-brand-yellow shrink-0">
                   <Map className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <h5 className="text-xs font-bold text-white">Transparência Total Garantida</h5>
-                  <p className="text-[10px] text-slate-400">Roteiros rastreados via GPS com link de confirmação.</p>
+                  <h5 className="text-xs font-bold text-white">Mais controle da campanha</h5>
+                  <p className="text-[10px] text-slate-400">Rotas, horários, equipe e mensagem podem ser planejados antes da ação.</p>
                 </div>
               </div>
-
             </div>
-
           </motion.div>
         </AnimatePresence>
-
       </div>
     </div>
   );
