@@ -11,6 +11,7 @@ import {
   MessageCircle,
   ExternalLink,
 } from "lucide-react";
+import { SEGMENT_OPTIONS, formatBrazilianPhone, resolveSegment } from "../utils/formHelpers";
 
 interface FAQItem {
   question: string;
@@ -22,6 +23,7 @@ export default function ContactView() {
     nome: "",
     telefone: "",
     segmento: "",
+    outroSegmento: "",
     cidade: "",
     mensagem: "",
   });
@@ -32,17 +34,23 @@ export default function ContactView() {
   const rawPhone = "5562991962033";
   const displayPhone = "(62) 99196-2033";
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "telefone" ? formatBrazilianPhone(value) : value,
+      ...(name === "segmento" && value !== "Outro" ? { outroSegmento: "" } : {}),
+    }));
   };
 
   const getWhatsappLink = () => {
+    const segmento = resolveSegment(formData.segmento, formData.outroSegmento);
     const text = `Olá! Vi o site da Ação Total e quero atendimento comercial.\n\n` +
       `Nome: ${formData.nome}\n` +
       `WhatsApp: ${formData.telefone}\n` +
       `Cidade: ${formData.cidade || "Não informado"}\n` +
-      `Segmento: ${formData.segmento || "Não informado"}\n` +
+      `Segmento: ${segmento}\n` +
       `Mensagem: ${formData.mensagem || "Quero divulgar minha empresa e receber uma sugestão de campanha."}`;
     return `https://wa.me/${rawPhone}?text=${encodeURIComponent(text)}`;
   };
@@ -50,6 +58,7 @@ export default function ContactView() {
   const persistLeadLocally = () => {
     const lead = {
       ...formData,
+      segmentoResolvido: resolveSegment(formData.segmento, formData.outroSegmento),
       origem: "pagina-contato",
       criadoEm: new Date().toISOString(),
     };
@@ -77,7 +86,7 @@ export default function ContactView() {
   };
 
   const handleReset = () => {
-    setFormData({ nome: "", telefone: "", segmento: "", cidade: "", mensagem: "" });
+    setFormData({ nome: "", telefone: "", segmento: "", outroSegmento: "", cidade: "", mensagem: "" });
     setIsSubmitted(false);
   };
 
@@ -175,13 +184,17 @@ export default function ContactView() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormInput label="Seu nome" name="nome" value={formData.nome} onChange={handleInputChange} required placeholder="Ex: João" />
-                      <FormInput label="WhatsApp / Celular" name="telefone" type="tel" value={formData.telefone} onChange={handleInputChange} required placeholder="Ex: (62) 99999-9999" />
+                      <FormInput label="WhatsApp / Celular" name="telefone" type="tel" inputMode="tel" value={formData.telefone} onChange={handleInputChange} required placeholder="Ex: (62) 99999-9999" />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormInput label="Cidade" name="cidade" value={formData.cidade} onChange={handleInputChange} placeholder="Ex: Anápolis" />
-                      <FormInput label="Segmento" name="segmento" value={formData.segmento} onChange={handleInputChange} placeholder="Ex: Supermercado, farmácia, loja..." />
+                      <SegmentSelect value={formData.segmento} onChange={handleInputChange} />
                     </div>
+
+                    {formData.segmento === "Outro" && (
+                      <FormInput label="Informe o segmento" name="outroSegmento" value={formData.outroSegmento} onChange={handleInputChange} placeholder="Ex: Pet shop, distribuidora, clínica veterinária..." />
+                    )}
 
                     <div className="flex flex-col space-y-1.5">
                       <label htmlFor="mensagem" className="text-[11px] font-semibold text-slate-300">Mensagem</label>
@@ -332,10 +345,11 @@ interface FormInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   type?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   required?: boolean;
 }
 
-function FormInput({ label, name, value, onChange, placeholder, type = "text", required = false }: FormInputProps) {
+function FormInput({ label, name, value, onChange, placeholder, type = "text", inputMode, required = false }: FormInputProps) {
   return (
     <div className="flex flex-col space-y-1.5">
       <label htmlFor={name} className="text-[11px] font-semibold text-slate-300">
@@ -343,6 +357,7 @@ function FormInput({ label, name, value, onChange, placeholder, type = "text", r
       </label>
       <input
         type={type}
+        inputMode={inputMode}
         id={name}
         name={name}
         required={required}
@@ -351,6 +366,33 @@ function FormInput({ label, name, value, onChange, placeholder, type = "text", r
         placeholder={placeholder}
         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
       />
+    </div>
+  );
+}
+
+interface SegmentSelectProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+function SegmentSelect({ value, onChange }: SegmentSelectProps) {
+  return (
+    <div className="flex flex-col space-y-1.5">
+      <label htmlFor="segmento" className="text-[11px] font-semibold text-slate-300">Segmento</label>
+      <select
+        id="segmento"
+        name="segmento"
+        value={value}
+        onChange={onChange}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
+      >
+        <option value="">Selecione o segmento</option>
+        {SEGMENT_OPTIONS.map((segment) => (
+          <option key={segment} value={segment} className="bg-[#0B0B0E] text-white">
+            {segment}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
