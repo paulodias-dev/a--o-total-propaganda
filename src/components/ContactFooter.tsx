@@ -9,6 +9,7 @@ import {
   ExternalLink,
   MessageCircle,
 } from "lucide-react";
+import { SEGMENT_OPTIONS, formatBrazilianPhone, resolveSegment } from "../utils/formHelpers";
 
 interface ContactFooterProps {
   onNavigate?: (page: string) => void;
@@ -19,6 +20,7 @@ export default function ContactFooter({ onNavigate }: ContactFooterProps) {
     nome: "",
     telefone: "",
     segmento: "",
+    outroSegmento: "",
     cidade: "",
     mensagem: "",
   });
@@ -28,17 +30,23 @@ export default function ContactFooter({ onNavigate }: ContactFooterProps) {
   const phone = "(62) 99196-2033";
   const rawPhone = "5562991962033";
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "telefone" ? formatBrazilianPhone(value) : value,
+      ...(name === "segmento" && value !== "Outro" ? { outroSegmento: "" } : {}),
+    }));
   };
 
   const getWhatsappPrefilledLink = () => {
+    const segmento = resolveSegment(formData.segmento, formData.outroSegmento);
     const text = `Olá! Vi o site da Ação Total e quero divulgar minha empresa.\n\n` +
       `Nome: ${formData.nome}\n` +
       `WhatsApp: ${formData.telefone}\n` +
       `Cidade: ${formData.cidade || "Não informado"}\n` +
-      `Segmento: ${formData.segmento || "Não informado"}\n` +
+      `Segmento: ${segmento}\n` +
       `Mensagem: ${formData.mensagem || "Quero receber uma sugestão de campanha e orçamento."}`;
 
     return `https://wa.me/${rawPhone}?text=${encodeURIComponent(text)}`;
@@ -47,6 +55,7 @@ export default function ContactFooter({ onNavigate }: ContactFooterProps) {
   const persistLeadLocally = () => {
     const lead = {
       ...formData,
+      segmentoResolvido: resolveSegment(formData.segmento, formData.outroSegmento),
       origem: "rodape",
       criadoEm: new Date().toISOString(),
     };
@@ -74,7 +83,7 @@ export default function ContactFooter({ onNavigate }: ContactFooterProps) {
   };
 
   const handleResetForm = () => {
-    setFormData({ nome: "", telefone: "", segmento: "", cidade: "", mensagem: "" });
+    setFormData({ nome: "", telefone: "", segmento: "", outroSegmento: "", cidade: "", mensagem: "" });
     setIsSubmitted(false);
   };
 
@@ -167,13 +176,17 @@ export default function ContactFooter({ onNavigate }: ContactFooterProps) {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <FormField label="Seu nome" name="nome" value={formData.nome} onChange={handleInputChange} placeholder="Ex: João Silva" required />
-                      <FormField label="WhatsApp / Celular" name="telefone" type="tel" value={formData.telefone} onChange={handleInputChange} placeholder="Ex: (62) 99999-9999" required />
+                      <FormField label="WhatsApp / Celular" name="telefone" type="tel" inputMode="tel" value={formData.telefone} onChange={handleInputChange} placeholder="Ex: (62) 99999-9999" required />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <FormField label="Cidade" name="cidade" value={formData.cidade} onChange={handleInputChange} placeholder="Ex: Anápolis" />
-                      <FormField label="Segmento da empresa" name="segmento" value={formData.segmento} onChange={handleInputChange} placeholder="Ex: Supermercado, loja, farmácia..." />
+                      <SegmentSelect value={formData.segmento} onChange={handleInputChange} />
                     </div>
+
+                    {formData.segmento === "Outro" && (
+                      <FormField label="Informe o segmento" name="outroSegmento" value={formData.outroSegmento} onChange={handleInputChange} placeholder="Ex: Pet shop, distribuidora, clínica veterinária..." />
+                    )}
 
                     <div className="flex flex-col space-y-2">
                       <label htmlFor="mensagem" className="text-xs font-semibold text-slate-300">Detalhes da campanha</label>
@@ -289,10 +302,11 @@ interface FormFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   type?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   required?: boolean;
 }
 
-function FormField({ label, name, value, onChange, placeholder, type = "text", required = false }: FormFieldProps) {
+function FormField({ label, name, value, onChange, placeholder, type = "text", inputMode, required = false }: FormFieldProps) {
   return (
     <div className="flex flex-col space-y-2">
       <label htmlFor={name} className="text-xs font-semibold text-slate-300">
@@ -300,6 +314,7 @@ function FormField({ label, name, value, onChange, placeholder, type = "text", r
       </label>
       <input
         type={type}
+        inputMode={inputMode}
         id={name}
         name={name}
         required={required}
@@ -308,6 +323,33 @@ function FormField({ label, name, value, onChange, placeholder, type = "text", r
         placeholder={placeholder}
         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
       />
+    </div>
+  );
+}
+
+interface SegmentSelectProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+function SegmentSelect({ value, onChange }: SegmentSelectProps) {
+  return (
+    <div className="flex flex-col space-y-2">
+      <label htmlFor="footer-segmento" className="text-xs font-semibold text-slate-300">Segmento da empresa</label>
+      <select
+        id="footer-segmento"
+        name="segmento"
+        value={value}
+        onChange={onChange}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
+      >
+        <option value="">Selecione o segmento</option>
+        {SEGMENT_OPTIONS.map((segment) => (
+          <option key={segment} value={segment} className="bg-[#0B0B0E] text-white">
+            {segment}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
