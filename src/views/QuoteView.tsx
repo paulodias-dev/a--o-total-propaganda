@@ -15,6 +15,7 @@ import {
   MessageCircle,
   FileText,
 } from "lucide-react";
+import { SEGMENT_OPTIONS, formatBrazilianPhone, resolveSegment } from "../utils/formHelpers";
 
 interface ServiceChannel {
   id: string;
@@ -43,7 +44,11 @@ export default function QuoteView() {
     whatsapp: "",
     cidade: "",
     segmento: "",
+    outroSegmento: "",
   });
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
   const channelsList: ServiceChannel[] = [
     {
@@ -113,9 +118,13 @@ export default function QuoteView() {
     });
   };
 
-  const handleLeadDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLeadDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setLeadData((prev) => ({ ...prev, [name]: value }));
+    setLeadData((prev) => ({
+      ...prev,
+      [name]: name === "whatsapp" ? formatBrazilianPhone(value) : value,
+      ...(name === "segmento" && value !== "Outro" ? { outroSegmento: "" } : {}),
+    }));
   };
 
   const calculateCosts = () => {
@@ -177,7 +186,7 @@ export default function QuoteView() {
       breakdown.push({
         name: "Anúncios Digitais",
         cost,
-        formula: `Gestão + R$ ${digitalBudget}/dia de mídia`,
+        formula: `Gestão + ${formatCurrency(digitalBudget)}/dia de mídia`,
       });
       total += cost;
     }
@@ -195,7 +204,7 @@ export default function QuoteView() {
     const nome = leadData.nome.trim() || "Não informado";
     const whatsapp = leadData.whatsapp.trim() || "Não informado";
     const cidade = leadData.cidade.trim() || "Não informado";
-    const segmento = leadData.segmento.trim() || "Não informado";
+    const segmento = resolveSegment(leadData.segmento, leadData.outroSegmento);
 
     let summaryText = `*ORÇAMENTO PELO SITE - AÇÃO TOTAL PROPAGANDA*\n\n`;
     summaryText += `Olá! Montei uma estimativa no site e quero falar com a equipe para ajustar a campanha.\n\n`;
@@ -207,15 +216,15 @@ export default function QuoteView() {
     summaryText += `*SERVIÇOS SELECIONADOS*\n`;
 
     results.breakdown.forEach((item) => {
-      summaryText += `• *${item.name}*: R$ ${item.cost.toFixed(2)} (${item.formula})\n`;
+      summaryText += `• *${item.name}*: ${formatCurrency(item.cost)} (${item.formula})\n`;
     });
 
     summaryText += `\n----------------------------------\n`;
-    summaryText += `*Subtotal estimado:* R$ ${results.subtotal.toFixed(2)}\n`;
+    summaryText += `*Subtotal estimado:* ${formatCurrency(results.subtotal)}\n`;
     if (results.discountActive) {
-      summaryText += `*Desconto por campanha combinada:* -R$ ${results.discountAmount.toFixed(2)}\n`;
+      summaryText += `*Desconto por campanha combinada:* -${formatCurrency(results.discountAmount)}\n`;
     }
-    summaryText += `*TOTAL ESTIMADO:* R$ ${results.finalTotal.toFixed(2)}\n`;
+    summaryText += `*TOTAL ESTIMADO:* ${formatCurrency(results.finalTotal)}\n`;
     summaryText += `----------------------------------\n\n`;
     summaryText += `Gostaria de receber atendimento e confirmar datas, rota, melhores horários e formato final da campanha.`;
 
@@ -304,7 +313,7 @@ export default function QuoteView() {
                           </div>
                           <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed font-light">{channel.desc}</p>
                           <span className="text-[10px] font-bold text-brand-yellow mt-2.5 inline-block">
-                            Estimativa a partir de R$ {channel.basePrice.toFixed(2)} / {channel.priceUnit}
+                            Estimativa a partir de {formatCurrency(channel.basePrice)} / {channel.priceUnit}
                           </span>
                         </div>
                       </button>
@@ -376,7 +385,7 @@ export default function QuoteView() {
 
                   {selectedChannels.includes("trafego-pago") && (
                     <SliderCard title="Anúncios Digitais" icon={<TrendingUp className="w-4 h-4 text-brand-yellow" />}>
-                      <RangeInput label="Verba diária de mídia" value={`R$ ${digitalBudget.toFixed(2)} / dia`} min="15" max="150" step="5" current={digitalBudget} onChange={setDigitalBudget} />
+                      <RangeInput label="Verba diária de mídia" value={`${formatCurrency(digitalBudget)} / dia`} min="15" max="150" step="5" current={digitalBudget} onChange={setDigitalBudget} />
                       <span className="text-[10px] text-slate-500 block mt-1">
                         A verba de mídia é ajustável conforme cidade, objetivo e concorrência local.
                       </span>
@@ -429,9 +438,14 @@ export default function QuoteView() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <QuoteContactInput label="Nome para contato" name="nome" value={leadData.nome} onChange={handleLeadDataChange} placeholder="Ex: João Silva" />
-                    <QuoteContactInput label="WhatsApp" name="whatsapp" type="tel" value={leadData.whatsapp} onChange={handleLeadDataChange} placeholder="Ex: (62) 99999-9999" />
+                    <QuoteContactInput label="WhatsApp" name="whatsapp" type="tel" value={leadData.whatsapp} onChange={handleLeadDataChange} placeholder="Ex: (62) 99999-9999" inputMode="tel" />
                     <QuoteContactInput label="Cidade" name="cidade" value={leadData.cidade} onChange={handleLeadDataChange} placeholder="Ex: Anápolis" />
-                    <QuoteContactInput label="Segmento" name="segmento" value={leadData.segmento} onChange={handleLeadDataChange} placeholder="Ex: Supermercado, farmácia, loja..." />
+                    <QuoteSegmentSelect value={leadData.segmento} onChange={handleLeadDataChange} />
+                    {leadData.segmento === "Outro" && (
+                      <div className="sm:col-span-2">
+                        <QuoteContactInput label="Informe o segmento" name="outroSegmento" value={leadData.outroSegmento} onChange={handleLeadDataChange} placeholder="Ex: Pet shop, distribuidora, clínica veterinária..." />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -443,7 +457,7 @@ export default function QuoteView() {
                           <p className="text-xs font-bold text-white">{item.name}</p>
                           <span className="text-[10px] text-slate-500 mt-0.5 block">{item.formula}</span>
                         </div>
-                        <span className="text-xs font-bold text-slate-200">R$ {item.cost.toFixed(2)}</span>
+                        <span className="text-xs font-bold text-slate-200">{formatCurrency(item.cost)}</span>
                       </div>
                     ))}
                   </div>
@@ -451,7 +465,7 @@ export default function QuoteView() {
                   <div className="border-t border-white/10 pt-4 space-y-2 text-xs">
                     <div className="flex justify-between text-slate-400">
                       <span>Subtotal estimado:</span>
-                      <span>R$ {results.subtotal.toFixed(2)}</span>
+                      <span>{formatCurrency(results.subtotal)}</span>
                     </div>
 
                     {results.discountActive && (
@@ -460,13 +474,13 @@ export default function QuoteView() {
                           <Sparkles className="w-3.5 h-3.5" />
                           Campanha combinada:
                         </span>
-                        <span>- R$ {results.discountAmount.toFixed(2)}</span>
+                        <span>- {formatCurrency(results.discountAmount)}</span>
                       </div>
                     )}
 
                     <div className="flex justify-between text-base font-black text-white border-t border-white/5 pt-3">
                       <span>Total estimado:</span>
-                      <span className="text-brand-yellow font-display">R$ {results.finalTotal.toFixed(2)}</span>
+                      <span className="text-brand-yellow font-display">{formatCurrency(results.finalTotal)}</span>
                     </div>
                   </div>
                 </div>
@@ -553,9 +567,10 @@ interface QuoteContactInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   type?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
 }
 
-function QuoteContactInput({ label, name, value, onChange, placeholder, type = "text" }: QuoteContactInputProps) {
+function QuoteContactInput({ label, name, value, onChange, placeholder, type = "text", inputMode }: QuoteContactInputProps) {
   return (
     <div className="flex flex-col space-y-1.5">
       <label htmlFor={`quote-${name}`} className="text-[11px] font-semibold text-slate-300">
@@ -565,11 +580,41 @@ function QuoteContactInput({ label, name, value, onChange, placeholder, type = "
         id={`quote-${name}`}
         name={name}
         type={type}
+        inputMode={inputMode}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
       />
+    </div>
+  );
+}
+
+interface QuoteSegmentSelectProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+}
+
+function QuoteSegmentSelect({ value, onChange }: QuoteSegmentSelectProps) {
+  return (
+    <div className="flex flex-col space-y-1.5">
+      <label htmlFor="quote-segmento" className="text-[11px] font-semibold text-slate-300">
+        Segmento
+      </label>
+      <select
+        id="quote-segmento"
+        name="segmento"
+        value={value}
+        onChange={onChange}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
+      >
+        <option value="">Selecione o segmento</option>
+        {SEGMENT_OPTIONS.map((segment) => (
+          <option key={segment} value={segment} className="bg-[#0B0B0E] text-white">
+            {segment}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
