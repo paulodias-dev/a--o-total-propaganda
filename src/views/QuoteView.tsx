@@ -38,6 +38,12 @@ export default function QuoteView() {
   const [panfletagemPromoters, setPanfletagemPromoters] = useState(2);
   const [panfletagemDays, setPanfletagemDays] = useState(3);
   const [digitalBudget, setDigitalBudget] = useState(30);
+  const [leadData, setLeadData] = useState({
+    nome: "",
+    whatsapp: "",
+    cidade: "",
+    segmento: "",
+  });
 
   const channelsList: ServiceChannel[] = [
     {
@@ -105,6 +111,11 @@ export default function QuoteView() {
 
       return [...prev, id];
     });
+  };
+
+  const handleLeadDataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLeadData((prev) => ({ ...prev, [name]: value }));
   };
 
   const calculateCosts = () => {
@@ -181,8 +192,19 @@ export default function QuoteView() {
   const results = calculateCosts();
 
   const handleWhatsappCheckout = () => {
+    const nome = leadData.nome.trim() || "Não informado";
+    const whatsapp = leadData.whatsapp.trim() || "Não informado";
+    const cidade = leadData.cidade.trim() || "Não informado";
+    const segmento = leadData.segmento.trim() || "Não informado";
+
     let summaryText = `*ORÇAMENTO PELO SITE - AÇÃO TOTAL PROPAGANDA*\n\n`;
     summaryText += `Olá! Montei uma estimativa no site e quero falar com a equipe para ajustar a campanha.\n\n`;
+    summaryText += `*DADOS PARA CONTATO*\n`;
+    summaryText += `• *Nome:* ${nome}\n`;
+    summaryText += `• *WhatsApp:* ${whatsapp}\n`;
+    summaryText += `• *Cidade:* ${cidade}\n`;
+    summaryText += `• *Segmento:* ${segmento}\n\n`;
+    summaryText += `*SERVIÇOS SELECIONADOS*\n`;
 
     results.breakdown.forEach((item) => {
       summaryText += `• *${item.name}*: R$ ${item.cost.toFixed(2)} (${item.formula})\n`;
@@ -195,7 +217,7 @@ export default function QuoteView() {
     }
     summaryText += `*TOTAL ESTIMADO:* R$ ${results.finalTotal.toFixed(2)}\n`;
     summaryText += `----------------------------------\n\n`;
-    summaryText += `Minha cidade é: \nMeu segmento é: \nGostaria de receber atendimento e confirmar datas, rota e melhores opções.`;
+    summaryText += `Gostaria de receber atendimento e confirmar datas, rota, melhores horários e formato final da campanha.`;
 
     window.open(`https://wa.me/5562991962033?text=${encodeURIComponent(summaryText)}`, "_blank", "noopener,noreferrer");
   };
@@ -395,8 +417,22 @@ export default function QuoteView() {
                     <FileText className="w-5 h-5 text-brand-yellow" /> Resumo para atendimento
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Envie esta estimativa para o WhatsApp e nossa equipe ajusta rota, datas, cidade, segmento e proposta final.
+                    Complete os dados abaixo para nossa equipe saber com quem falar, em qual cidade atender e qual é o segmento da campanha.
                   </p>
+                </div>
+
+                <div className="bg-black/30 rounded-2xl border border-white/10 p-5 space-y-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-white mb-1 font-display">Dados para contato</h3>
+                    <p className="text-[11px] text-slate-500">Essas informações serão incluídas automaticamente na mensagem enviada pelo WhatsApp.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <QuoteContactInput label="Nome para contato" name="nome" value={leadData.nome} onChange={handleLeadDataChange} placeholder="Ex: João Silva" />
+                    <QuoteContactInput label="WhatsApp" name="whatsapp" type="tel" value={leadData.whatsapp} onChange={handleLeadDataChange} placeholder="Ex: (62) 99999-9999" />
+                    <QuoteContactInput label="Cidade" name="cidade" value={leadData.cidade} onChange={handleLeadDataChange} placeholder="Ex: Anápolis" />
+                    <QuoteContactInput label="Segmento" name="segmento" value={leadData.segmento} onChange={handleLeadDataChange} placeholder="Ex: Supermercado, farmácia, loja..." />
+                  </div>
                 </div>
 
                 <div className="bg-black/40 rounded-2xl border border-white/10 p-5 space-y-4" id="invoice-breakdown-box">
@@ -449,7 +485,7 @@ export default function QuoteView() {
                     className="flex-1 py-4 bg-brand-yellow hover:bg-[#ffd633] text-black font-extrabold uppercase tracking-wider text-xs rounded-xl shadow-lg shadow-brand-yellow/10 hover:shadow-brand-yellow/20 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <MessageCircle className="w-4.5 h-4.5 fill-current text-black" />
-                    Enviar para atendimento no WhatsApp
+                    Enviar orçamento pelo WhatsApp
                   </button>
                 </div>
               </motion.div>
@@ -505,6 +541,34 @@ function RangeInput({ label, value, min, max, current, onChange, step }: RangeIn
         value={current}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-yellow"
+      />
+    </div>
+  );
+}
+
+interface QuoteContactInputProps {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  type?: string;
+}
+
+function QuoteContactInput({ label, name, value, onChange, placeholder, type = "text" }: QuoteContactInputProps) {
+  return (
+    <div className="flex flex-col space-y-1.5">
+      <label htmlFor={`quote-${name}`} className="text-[11px] font-semibold text-slate-300">
+        {label}
+      </label>
+      <input
+        id={`quote-${name}`}
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-yellow focus:ring-1 focus:ring-brand-yellow transition-all duration-300"
       />
     </div>
   );
