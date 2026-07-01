@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navigation from "./components/Navigation";
+import DynamicSeo from "./components/DynamicSeo";
 import HomeView from "./views/HomeView";
 import AboutView from "./views/AboutView";
 import ServicesView from "./views/ServicesView";
@@ -17,7 +18,6 @@ export default function App() {
   const [announcementHeight, setAnnouncementHeight] = useState(0);
   const announcementRef = useRef<HTMLDivElement | null>(null);
 
-  // Sync state with hash routing in URL
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace("#", "");
@@ -30,7 +30,6 @@ export default function App() {
     };
 
     window.addEventListener("hashchange", handleHashChange);
-    // Initial sync
     handleHashChange();
 
     return () => window.removeEventListener("hashchange", handleHashChange);
@@ -90,42 +89,37 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-midnight-carbon text-white antialiased selection:bg-brand-yellow/30 selection:text-white relative">
-      {/* Dynamic top announcement banner */}
+      <DynamicSeo activePage={activePage} selectedSubService={selectedSubService} />
+
       <div
         ref={announcementRef}
         className="bg-gradient-to-r from-brand-yellow to-[#FFE066] text-black py-2.5 px-4 text-center text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 z-50 relative shadow-md"
       >
         <Sparkles className="w-4 h-4 animate-spin-slow text-black" />
-        <span>PROMOÇÃO DE INVERNO: Ganhe a produção de 1 Spot de Rádio Corporativa ao contratar qualquer solução volante!</span>
+        <span>Quer divulgar sua empresa ainda esta semana? Receba uma sugestão de campanha pelo WhatsApp.</span>
         <button
           onClick={() => handleNavigate("orcamento")}
           className="underline hover:text-neutral-800 transition-colors cursor-pointer ml-1.5 font-bold"
         >
-          Aproveitar Oferta
+          Pedir orçamento
         </button>
       </div>
 
-      {/* 1. Sticky Navigation Bar */}
       <Navigation
         activePage={activePage}
         onNavigate={handleNavigate}
         announcementOffset={announcementHeight}
       />
 
-      {/* Semantic Main Content Block with fade in transition */}
       <main className="transition-opacity duration-300">
         {renderActiveView()}
       </main>
 
-      {/* 2. Conditionally rendered Contact Section & Semantic Footer */}
       {activePage !== "contato" && (
         <ContactFooter onNavigate={handleNavigate} />
       )}
 
-      {/* 3. Floating Action WhatsApp Button */}
       <FloatingWhatsapp />
-
-      {/* 4. Scroll To Top Button */}
       <ScrollToTop />
     </div>
   );
