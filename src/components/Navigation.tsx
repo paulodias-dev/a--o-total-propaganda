@@ -60,10 +60,10 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
   const navLinks = [
     { name: "Início", page: "home" },
     { name: "Quem Somos", page: "sobre" },
-    { name: "Serviços", page: "servicos" },
-    { name: "Showroom", page: "demos" },
-    { name: "Simulador", page: "orcamento" },
-    { name: "Contato", page: "contato" },
+    { name: "Como Divulgar", page: "servicos" },
+    { name: "Ouvir Exemplos", page: "demos" },
+    { name: "Orçamento", page: "orcamento" },
+    { name: "Atendimento", page: "contato" },
   ];
 
   const handleLinkClick = (page: string) => {
@@ -88,17 +88,16 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* Replaced Text with Custom Brand Logo */}
           <button
             onClick={() => handleLinkClick("home")}
             className="flex items-center cursor-pointer focus:outline-none"
             id="nav-logo"
+            aria-label="Ir para o início"
           >
             <Logo size="md" showSubtitle={false} className="origin-left scale-[0.9] md:scale-100" />
           </button>
 
-          {/* Center Links (Desktop) */}
-          <nav className="hidden md:flex items-center space-x-6" id="nav-desktop-menu">
+          <nav className="hidden md:flex items-center space-x-6" id="nav-desktop-menu" aria-label="Menu principal">
             {navLinks.map((link) => {
               const isActive = activePage === link.page;
               return (
@@ -118,7 +117,6 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
             })}
           </nav>
 
-          {/* Right Button (Desktop) */}
           <div className="hidden md:flex items-center" id="nav-desktop-cta">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -126,16 +124,15 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
               onClick={() => handleLinkClick("orcamento")}
               className="bg-brand-yellow hover:bg-[#ffd633] text-black px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-brand-yellow/10 hover:shadow-brand-yellow/20 transition-all duration-300 cursor-pointer flex items-center gap-1"
             >
-              Simulador
+              Pedir atendimento
               <ArrowRight className="w-3.5 h-3.5 text-black stroke-[3]" />
             </motion.button>
           </div>
 
-          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden text-white hover:text-brand-yellow transition-colors p-2 focus:outline-none"
-            aria-label="Toggle menu"
+            aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             id="nav-mobile-toggle"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -143,7 +140,6 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
         </div>
       </motion.header>
 
-      {/* Mobile Menu Panel */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -181,7 +177,7 @@ export default function Navigation({ activePage, onNavigate, announcementOffset 
                 onClick={() => handleLinkClick("orcamento")}
                 className="w-full bg-brand-yellow hover:bg-[#ffd633] text-black py-3.5 rounded-xl text-center font-extrabold uppercase tracking-wider shadow-lg shadow-brand-yellow/10 cursor-pointer flex items-center justify-center gap-2"
               >
-                Simular Orçamento
+                Quero divulgar minha empresa
                 <ArrowRight className="w-4 h-4 text-black stroke-[3]" />
               </motion.button>
             </div>
